@@ -56,6 +56,12 @@ let journalistSprite = null;
 let femaleModelSprite = null;
 let spritesLoaded = false;
 
+// Sound effects
+let femaleInteractionSound = null;
+let obstacleSound = null;
+let finalSound = null;
+let soundsLoaded = false;
+
 // Initialize game
 function init() {
     canvas = document.getElementById('gameCanvas');
@@ -75,6 +81,9 @@ function init() {
     
     // Load sprites
     loadSprites();
+    
+    // Load sounds
+    loadSounds();
     
     // Generate initial buildings for start screen
     generateBuildings();
@@ -142,6 +151,40 @@ function loadSprites() {
     policeSprite.src = 'src/assets/images/police_2x3.png';
     journalistSprite.src = 'src/assets/images/journalist_2x4.png';
     femaleModelSprite.src = 'src/assets/images/female_model_2x4.png';
+}
+
+function loadSounds() {
+    femaleInteractionSound = new Audio();
+    obstacleSound = new Audio();
+    finalSound = new Audio();
+    
+    let loadedCount = 0;
+    const totalSounds = 3;
+    
+    femaleInteractionSound.addEventListener('canplaythrough', function() {
+        loadedCount++;
+        if (loadedCount === totalSounds) {
+            soundsLoaded = true;
+        }
+    });
+    
+    obstacleSound.addEventListener('canplaythrough', function() {
+        loadedCount++;
+        if (loadedCount === totalSounds) {
+            soundsLoaded = true;
+        }
+    });
+    
+    finalSound.addEventListener('canplaythrough', function() {
+        loadedCount++;
+        if (loadedCount === totalSounds) {
+            soundsLoaded = true;
+        }
+    });
+    
+    femaleInteractionSound.src = 'src/assets/sounds/Female_interaction.m4a';
+    obstacleSound.src = 'src/assets/sounds/obstacle.m4a';
+    finalSound.src = 'src/assets/sounds/final.m4a';
 }
 
 function resizeCanvas() {
@@ -313,6 +356,12 @@ function updateDistance() {
         endGamePhase = 'arriving';
         player.currentAnimation = 'stand';
         player.currentFrame = 0;
+        
+        // Play final destination sound
+        if (soundsLoaded) {
+            finalSound.currentTime = 0;
+            finalSound.play().catch(e => console.log('Final sound play failed:', e));
+        }
     }
     
     // Update end game animation
@@ -488,6 +537,19 @@ function handleCollision(entity) {
     
     // Clamp hearts between 0 and 3
     hearts = Math.max(0, Math.min(3, hearts));
+    
+    // Play appropriate sound effect
+    if (soundsLoaded) {
+        if (entity.type === 2) { // Female Model
+            // Reset and play female interaction sound
+            femaleInteractionSound.currentTime = 0;
+            femaleInteractionSound.play().catch(e => console.log('Sound play failed:', e));
+        } else { // Police or Journalist
+            // Reset and play obstacle sound
+            obstacleSound.currentTime = 0;
+            obstacleSound.play().catch(e => console.log('Sound play failed:', e));
+        }
+    }
     
     // Add collision feedback
     collisionFeedback.push({
