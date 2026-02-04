@@ -695,20 +695,132 @@ function drawCollisionFeedback() {
 function drawStartScreen() {
     drawBackground();
     
-    // Draw "Tap to Start" text
+    // Draw semi-transparent overlay
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    
+    // Draw main title
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
+    ctx.font = 'bold 36px Comic Sans MS';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.strokeText('Election Runner 2', CANVAS_WIDTH / 2, 80);
+    ctx.fillText('Election Runner 2', CANVAS_WIDTH / 2, 80);
+    
+    // Draw character cards
+    const cardWidth = 180;
+    const cardHeight = 200;
+    const cardSpacing = 20;
+    const totalWidth = 3 * cardWidth + 2 * cardSpacing;
+    const startX = (CANVAS_WIDTH - totalWidth) / 2;
+    const cardY = 140;
+    
+    // Police Card
+    drawCharacterCard(startX, cardY, cardWidth, cardHeight, policeSprite, 'Police', '#FF4444', '-1');
+    
+    // Journalist Card  
+    drawCharacterCard(startX + cardWidth + cardSpacing, cardY, cardWidth, cardHeight, journalistSprite, 'Journalist', '#FF4444', '-1');
+    
+    // Female Model Card
+    drawCharacterCard(startX + 2 * (cardWidth + cardSpacing), cardY, cardWidth, cardHeight, femaleModelSprite, 'Model', '#44FF44', '+1');
+    
+    // Draw instruction text
     ctx.fillStyle = '#FFFFFF';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
-    ctx.font = 'bold 48px Comic Sans MS';
+    ctx.font = 'bold 20px Comic Sans MS';
+    ctx.textAlign = 'center';
+    ctx.fillText('Avoid Police & Journalist • Collect Models', CANVAS_WIDTH / 2, 380);
+    
+    // Draw "Tap to Start" button
+    const buttonY = 450;
+    const buttonWidth = 200;
+    const buttonHeight = 60;
+    const buttonX = (CANVAS_WIDTH - buttonWidth) / 2;
+    
+    // Button background
+    ctx.fillStyle = '#4CAF50';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3;
+    ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+    ctx.strokeRect(buttonX, buttonY, buttonWidth, buttonHeight);
+    
+    // Button text
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 24px Comic Sans MS';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.fillText('TAP TO START', CANVAS_WIDTH / 2, buttonY + buttonHeight / 2);
+}
+
+function drawCharacterCard(x, y, width, height, sprite, name, color, heartEffect) {
+    // Card background
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.fillRect(x, y, width, height);
+    ctx.strokeRect(x, y, width, height);
     
-    const text = 'Tap to Start';
-    const x = CANVAS_WIDTH / 2;
-    const y = CANVAS_HEIGHT / 2;
+    // Character image area
+    const imageAreaY = y + 10;
+    const imageAreaHeight = 100;
+    const imageSize = 80;
+    const imageX = x + (width - imageSize) / 2;
+    const imageY = imageAreaY + (imageAreaHeight - imageSize) / 2;
     
-    ctx.strokeText(text, x, y);
-    ctx.fillText(text, x, y);
+    // Draw character image
+    if (sprite && sprite.complete) {
+        // Calculate correct frame size based on sprite grid
+        let frameWidth, frameHeight;
+        
+        if (sprite === policeSprite) {
+            // Police: 3x2 grid
+            frameWidth = sprite.width / 3;
+            frameHeight = sprite.height / 2;
+        } else if (sprite === journalistSprite || sprite === femaleModelSprite) {
+            // Journalist/Model: 4x2 grid
+            frameWidth = sprite.width / 4;
+            frameHeight = sprite.height / 2;
+        }
+        
+        // Draw first frame
+        ctx.drawImage(sprite, 0, 0, frameWidth, frameHeight, imageX, imageY, imageSize, imageSize);
+    } else {
+        // Fallback
+        ctx.fillStyle = '#CCCCCC';
+        ctx.fillRect(imageX, imageY, imageSize, imageSize);
+        ctx.fillStyle = '#666666';
+        ctx.font = '12px Comic Sans MS';
+        ctx.textAlign = 'center';
+        ctx.fillText('Loading...', imageX + imageSize/2, imageY + imageSize/2);
+    }
+    
+    // Character name
+    ctx.fillStyle = '#000000';
+    ctx.font = 'bold 18px Comic Sans MS';
+    ctx.textAlign = 'center';
+    ctx.fillText(name, x + width/2, y + 130);
+    
+    // Heart effect
+    ctx.fillStyle = color;
+    ctx.font = 'bold 24px Comic Sans MS';
+    ctx.fillText(heartEffect + ' Heart', x + width/2, y + 160);
+    
+    // Heart icon
+    drawHeartIcon(x + width/2 - 30, y + 145, 20, color);
+}
+
+function drawHeartIcon(x, y, size, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x, y + size/4);
+    ctx.bezierCurveTo(x, y, x - size/2, y, x - size/2, y + size/4);
+    ctx.bezierCurveTo(x - size/2, y + size/2, x, y + size, x, y + size);
+    ctx.bezierCurveTo(x, y + size, x + size/2, y + size/2, x + size/2, y + size/4);
+    ctx.bezierCurveTo(x + size/2, y, x, y, x, y + size/4);
+    ctx.fill();
 }
 
 function drawGameScreen() {
