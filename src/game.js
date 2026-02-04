@@ -145,12 +145,12 @@ function loadSprites() {
         }
     };
     
-    playerRunSprite.src = 'src/assets/images/player_run_3x3.png';
-    playerJumpSprite.src = 'src/assets/images/player_jump_3x3.png';
-    playerStandSprite.src = 'src/assets/images/player_stand.png';
-    policeSprite.src = 'src/assets/images/police_2x3.png';
-    journalistSprite.src = 'src/assets/images/journalist_2x4.png';
-    femaleModelSprite.src = 'src/assets/images/female_model_2x4.png';
+    playerRunSprite.src = './src/assets/images/player_run_3x3.png';
+    playerJumpSprite.src = './src/assets/images/player_jump_3x3.png';
+    playerStandSprite.src = './src/assets/images/player_stand.png';
+    policeSprite.src = './src/assets/images/police_2x3.png';
+    journalistSprite.src = './src/assets/images/journalist_2x4.png';
+    femaleModelSprite.src = './src/assets/images/female_model_2x4.png';
 }
 
 function loadSounds() {
@@ -182,9 +182,9 @@ function loadSounds() {
         }
     });
     
-    femaleInteractionSound.src = 'src/assets/sounds/Female_interaction.m4a';
-    obstacleSound.src = 'src/assets/sounds/obstacle.m4a';
-    finalSound.src = 'src/assets/sounds/final.m4a';
+    femaleInteractionSound.src = './src/assets/sounds/Female_interaction.m4a';
+    obstacleSound.src = './src/assets/sounds/obstacle.m4a';
+    finalSound.src = './src/assets/sounds/final.m4a';
 }
 
 function resizeCanvas() {
