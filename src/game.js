@@ -21,6 +21,10 @@ let hearts = 3;
 let animationId;
 let buildings = [];
 let backgroundOffset = 0;
+let entities = [];
+let lastSpawnTime = 0;
+let spawnInterval = 2000; // Spawn every 2 seconds
+let collisionFeedback = [];
 
 // Player object
 let player = {
@@ -96,6 +100,9 @@ function startGame() {
     hearts = 3;
     resetPlayer();
     generateBuildings();
+    entities = [];
+    lastSpawnTime = 0;
+    collisionFeedback = [];
 }
 
 function resetPlayer() {
@@ -129,9 +136,126 @@ function updateDistance() {
     distance += player.speed / 60; // Convert to meters (assuming 60 FPS)
     backgroundOffset += player.speed * 2; // Faster building scrolling
     
+    // Spawn entities
+    spawnEntities();
+    
+    // Update entities
+    updateEntities();
+    
+    // Check collisions
+    checkCollisions();
+    
+    // Update collision feedback
+    updateCollisionFeedback();
+    
     if (distance >= TARGET_DISTANCE) {
         gameState = GAME_STATES.END;
     }
+}
+
+function spawnEntities() {
+    const currentTime = Date.now();
+    if (currentTime - lastSpawnTime > spawnInterval) {
+        const entityType = Math.floor(Math.random() * 3);
+        const entity = createEntity(entityType);
+        entities.push(entity);
+        lastSpawnTime = currentTime;
+        
+        // Vary spawn interval
+        spawnInterval = 1500 + Math.random() * 2000;
+    }
+}
+
+function createEntity(type) {
+    const baseY = 400;
+    const entityData = {
+        x: CANVAS_WIDTH + 50,
+        y: baseY,
+        width: 40,
+        height: 60,
+        speed: GAME_SPEED,
+        type: type,
+        color: '#FFFFFF',
+        effect: 0
+    };
+    
+    switch(type) {
+        case 0: // Police
+            entityData.color = '#0066CC';
+            entityData.effect = -1;
+            break;
+        case 1: // Journalist
+            entityData.color = '#CC6600';
+            entityData.effect = -1;
+            break;
+        case 2: // Female Model
+            entityData.color = '#FF66CC';
+            entityData.effect = +1;
+            break;
+    }
+    
+    return entityData;
+}
+
+function updateEntities() {
+    entities = entities.filter(entity => {
+        entity.x -= entity.speed;
+        return entity.x + entity.width > -50;
+    });
+}
+
+function checkCollisions() {
+    entities.forEach((entity, index) => {
+        if (isColliding(player, entity)) {
+            handleCollision(entity);
+            entities.splice(index, 1);
+        }
+    });
+}
+
+function isColliding(rect1, rect2) {
+    return rect1.x < rect2.x + rect2.width &&
+           rect1.x + rect1.width > rect2.x &&
+           rect1.y < rect2.y + rect2.height &&
+           rect1.y + rect1.height > rect2.y;
+}
+
+function handleCollision(entity) {
+    hearts += entity.effect;
+    
+    // Clamp hearts between 0 and 3
+    hearts = Math.max(0, Math.min(3, hearts));
+    
+    // Add collision feedback
+    collisionFeedback.push({
+        x: player.x + player.width / 2,
+        y: player.y - 20,
+        text: entity.effect > 0 ? '+1' : '-1',
+        color: entity.effect > 0 ? '#00FF00' : '#FF0000',
+        timer: 60
+    });
+    
+    // Check game over
+    if (hearts <= 0) {
+        resetGame();
+    }
+}
+
+function resetGame() {
+    gameState = GAME_STATES.START;
+    distance = 0;
+    hearts = 3;
+    resetPlayer();
+    entities = [];
+    collisionFeedback = [];
+}
+
+function updateCollisionFeedback() {
+    collisionFeedback = collisionFeedback.filter(feedback => {
+        feedback.y -= 1;
+        feedback.timer--;
+        return feedback.timer > 0;
+    });
 }
 
 function generateBuildings() {
@@ -306,6 +430,44 @@ function drawPlayer() {
     ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
+function drawEntities() {
+    entities.forEach(entity => {
+        // Draw entity body
+        ctx.fillStyle = entity.color;
+        ctx.fillRect(entity.x, entity.y, entity.width, entity.height);
+        
+        // Draw entity details based on type
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '12px Comic Sans MS';
+        ctx.textAlign = 'center';
+        
+        switch(entity.type) {
+            case 0: // Police
+                ctx.fillText('P', entity.x + entity.width/2, entity.y + entity.height/2);
+                break;
+            case 1: // Journalist
+                ctx.fillText('J', entity.x + entity.width/2, entity.y + entity.height/2);
+                break;
+            case 2: // Female Model
+                ctx.fillText('F', entity.x + entity.width/2, entity.y + entity.height/2);
+                break;
+        }
+    });
+}
+
+function drawCollisionFeedback() {
+    collisionFeedback.forEach(feedback => {
+        ctx.fillStyle = feedback.color;
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
+        ctx.font = 'bold 24px Comic Sans MS';
+        ctx.textAlign = 'center';
+        
+        ctx.strokeText(feedback.text, feedback.x, feedback.y);
+        ctx.fillText(feedback.text, feedback.x, feedback.y);
+    });
+}
+
 function drawStartScreen() {
     drawBackground();
     
@@ -327,7 +489,9 @@ function drawStartScreen() {
 
 function drawGameScreen() {
     drawBackground();
+    drawEntities();
     drawPlayer();
+    drawCollisionFeedback();
     
     // Draw distance
     ctx.fillStyle = '#FFFFFF';
