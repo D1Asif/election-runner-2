@@ -3,7 +3,7 @@ const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
 const GAME_SPEED = 5;
 const GRAVITY = 0.8;
-const JUMP_FORCE = -15;
+const JUMP_FORCE = -20; // Increased from -15 for higher jumps
 const TARGET_DISTANCE = 501;
 
 // Game States
@@ -30,17 +30,33 @@ let collisionFeedback = [];
 let player = {
     x: 100,
     y: 400,
-    width: 50,
-    height: 50,
+    width: 80,  // Increased from 70 (+15%)
+    height: 80, // Increased from 70 (+15%)
     velocityY: 0,
     isJumping: false,
-    speed: GAME_SPEED
+    speed: GAME_SPEED,
+    currentFrame: 0,
+    frameTimer: 0,
+    frameInterval: 8, // Faster animation for proper running motion
+    currentAnimation: 'run'
 };
+
+// Sprite images
+let playerRunSprite = null;
+let playerJumpSprite = null;
+let policeSprite = null;
+let journalistSprite = null;
+let femaleModelSprite = null;
+let spritesLoaded = false;
 
 // Initialize game
 function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
+    
+    // Improve image rendering quality
+    ctx.imageSmoothingEnabled = false; // Disable anti-aliasing for crisp pixels
+    ctx.imageSmoothingQuality = 'high';
     
     // Set canvas size
     resizeCanvas();
@@ -50,11 +66,66 @@ function init() {
     canvas.addEventListener('click', handleClick);
     canvas.addEventListener('touchstart', handleTouch);
     
+    // Load sprites
+    loadSprites();
+    
     // Generate initial buildings for start screen
     generateBuildings();
     
     // Start game loop
     gameLoop();
+}
+
+function loadSprites() {
+    playerRunSprite = new Image();
+    playerJumpSprite = new Image();
+    policeSprite = new Image();
+    journalistSprite = new Image();
+    femaleModelSprite = new Image();
+    
+    let loadedCount = 0;
+    const totalSprites = 5;
+    
+    playerRunSprite.onload = function() {
+        loadedCount++;
+        if (loadedCount === totalSprites) {
+            spritesLoaded = true;
+        }
+    };
+    
+    playerJumpSprite.onload = function() {
+        loadedCount++;
+        if (loadedCount === totalSprites) {
+            spritesLoaded = true;
+        }
+    };
+    
+    policeSprite.onload = function() {
+        loadedCount++;
+        if (loadedCount === totalSprites) {
+            spritesLoaded = true;
+        }
+    };
+    
+    journalistSprite.onload = function() {
+        loadedCount++;
+        if (loadedCount === totalSprites) {
+            spritesLoaded = true;
+        }
+    };
+    
+    femaleModelSprite.onload = function() {
+        loadedCount++;
+        if (loadedCount === totalSprites) {
+            spritesLoaded = true;
+        }
+    };
+    
+    playerRunSprite.src = 'src/assets/images/player_run_3x3.png';
+    playerJumpSprite.src = 'src/assets/images/player_jump_3x3.png';
+    policeSprite.src = 'src/assets/images/police_2x3.png';
+    journalistSprite.src = 'src/assets/images/journalist_2x4.png';
+    femaleModelSprite.src = 'src/assets/images/female_model_2x4.png';
 }
 
 function resizeCanvas() {
@@ -109,12 +180,17 @@ function resetPlayer() {
     player.y = 400;
     player.velocityY = 0;
     player.isJumping = false;
+    player.currentAnimation = 'run';
+    player.currentFrame = 0;
+    player.frameTimer = 0;
 }
 
 function playerJump() {
     if (!player.isJumping) {
         player.velocityY = JUMP_FORCE;
         player.isJumping = true;
+        player.currentAnimation = 'jump';
+        player.currentFrame = 0;
     }
 }
 
@@ -129,6 +205,33 @@ function updatePlayer() {
         player.y = groundY;
         player.velocityY = 0;
         player.isJumping = false;
+        player.currentAnimation = 'run';
+        player.currentFrame = 0;
+    }
+    
+    // Update animation
+    updatePlayerAnimation();
+}
+
+function updatePlayerAnimation() {
+    player.frameTimer++;
+    
+    if (player.frameTimer >= player.frameInterval) {
+        player.frameTimer = 0;
+        player.currentFrame++;
+        
+        // For running animation, use first 6 frames (first 2 rows) for better running motion
+        if (player.currentAnimation === 'run') {
+            if (player.currentFrame >= 6) {
+                player.currentFrame = 0;
+            }
+        } else {
+            // For jumping animation, use all 9 frames
+            const totalFrames = 9;
+            if (player.currentFrame >= totalFrames) {
+                player.currentFrame = 0;
+            }
+        }
     }
 }
 
@@ -167,30 +270,46 @@ function spawnEntities() {
 }
 
 function createEntity(type) {
-    const baseY = 400;
+    const baseY = 380; // Adjusted base Y position for entities
     const entityData = {
         x: CANVAS_WIDTH + 50,
         y: baseY,
-        width: 40,
-        height: 60,
         speed: GAME_SPEED,
         type: type,
         color: '#FFFFFF',
-        effect: 0
+        effect: 0,
+        currentFrame: 0,
+        frameTimer: 0,
+        frameInterval: 15 // Entity animation speed
     };
     
     switch(type) {
-        case 0: // Police
+        case 0: // Police - 3x2 grid, taller sprite
             entityData.color = '#0066CC';
             entityData.effect = -1;
+            entityData.width = 80;
+            entityData.height = 100;
+            entityData.yOffset = 0; // Increased to keep feet firmly on ground
+            entityData.gridCols = 3;
+            entityData.gridRows = 2;
             break;
-        case 1: // Journalist
+        case 1: // Journalist - 4x2 grid, medium height
             entityData.color = '#CC6600';
             entityData.effect = -1;
+            entityData.width = 70;
+            entityData.height = 90;
+            entityData.yOffset = 0; // Increased to prevent floating
+            entityData.gridCols = 4;
+            entityData.gridRows = 2;
             break;
-        case 2: // Female Model
+        case 2: // Female Model - 4x2 grid, shorter sprite
             entityData.color = '#FF66CC';
             entityData.effect = +1;
+            entityData.width = 75;
+            entityData.height = 85;
+            entityData.yOffset = 0; // Increased to keep feet on ground
+            entityData.gridCols = 4;
+            entityData.gridRows = 2;
             break;
     }
     
@@ -200,6 +319,21 @@ function createEntity(type) {
 function updateEntities() {
     entities = entities.filter(entity => {
         entity.x -= entity.speed;
+        
+        // Update entity animation
+        entity.frameTimer++;
+        if (entity.frameTimer >= entity.frameInterval) {
+            entity.frameTimer = 0;
+            entity.currentFrame++;
+            
+            // Calculate total frames based on entity type grid
+            const totalFrames = entity.gridCols * entity.gridRows;
+            
+            if (entity.currentFrame >= totalFrames) {
+                entity.currentFrame = 0;
+            }
+        }
+        
         return entity.x + entity.width > -50;
     });
 }
@@ -426,31 +560,121 @@ function drawBuildings() {
 }
 
 function drawPlayer() {
-    ctx.fillStyle = '#FF6B6B';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    if (!spritesLoaded) {
+        // Fallback to rectangle if sprites not loaded
+        ctx.fillStyle = '#FF6B6B';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+        return;
+    }
+    
+    // Select appropriate sprite based on animation state
+    const currentSprite = player.currentAnimation === 'jump' ? playerJumpSprite : playerRunSprite;
+    
+    if (currentSprite && currentSprite.complete) {
+        // Calculate frame position in 3x3 grid
+        const gridCols = 3;
+        const gridRows = 3;
+        const frameWidth = currentSprite.width / gridCols;
+        const frameHeight = currentSprite.height / gridRows;
+        
+        let col, row;
+        
+        if (player.currentAnimation === 'run') {
+            // For running, use first 6 frames (first 2 rows)
+            col = player.currentFrame % 3; // 0,1,2,0,1,2...
+            row = Math.floor(player.currentFrame / 3); // 0,0,0,1,1,1...
+        } else {
+            // For jumping, use all 9 frames normally
+            col = player.currentFrame % gridCols;
+            row = Math.floor(player.currentFrame / gridCols);
+        }
+        
+        const sourceX = col * frameWidth;
+        const sourceY = row * frameHeight;
+        
+        // Draw the sprite frame
+        ctx.drawImage(
+            currentSprite,
+            sourceX, sourceY, frameWidth, frameHeight,
+            player.x, player.y, player.width, player.height
+        );
+    } else {
+        // Fallback to rectangle if sprite not ready
+        ctx.fillStyle = '#FF6B6B';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 }
 
 function drawEntities() {
     entities.forEach(entity => {
-        // Draw entity body
-        ctx.fillStyle = entity.color;
-        ctx.fillRect(entity.x, entity.y, entity.width, entity.height);
+        if (!spritesLoaded) {
+            // Fallback to rectangle if sprites not loaded
+            ctx.fillStyle = entity.color;
+            ctx.fillRect(entity.x, entity.y, entity.width, entity.height);
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '12px Comic Sans MS';
+            ctx.textAlign = 'center';
+            
+            switch(entity.type) {
+                case 0: // Police
+                    ctx.fillText('P', entity.x + entity.width/2, entity.y + entity.height/2);
+                    break;
+                case 1: // Journalist
+                    ctx.fillText('J', entity.x + entity.width/2, entity.y + entity.height/2);
+                    break;
+                case 2: // Female Model
+                    ctx.fillText('F', entity.x + entity.width/2, entity.y + entity.height/2);
+                    break;
+            }
+            return;
+        }
         
-        // Draw entity details based on type
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '12px Comic Sans MS';
-        ctx.textAlign = 'center';
-        
+        // Select appropriate sprite based on entity type
+        let currentSprite = null;
         switch(entity.type) {
             case 0: // Police
-                ctx.fillText('P', entity.x + entity.width/2, entity.y + entity.height/2);
+                currentSprite = policeSprite;
                 break;
             case 1: // Journalist
-                ctx.fillText('J', entity.x + entity.width/2, entity.y + entity.height/2);
+                currentSprite = journalistSprite;
                 break;
             case 2: // Female Model
-                ctx.fillText('F', entity.x + entity.width/2, entity.y + entity.height/2);
+                currentSprite = femaleModelSprite;
                 break;
+        }
+        
+        if (currentSprite && currentSprite.complete) {
+            // Calculate frame position based on entity type
+            const gridCols = entity.gridCols;
+            const gridRows = entity.gridRows;
+            const frameWidth = currentSprite.width / gridCols;
+            const frameHeight = currentSprite.height / gridRows;
+            
+            const col = entity.currentFrame % gridCols;
+            const row = Math.floor(entity.currentFrame / gridCols);
+            
+            const sourceX = col * frameWidth;
+            const sourceY = row * frameHeight;
+            
+            // Adjust Y position to keep feet on ground
+            const drawY = entity.y - entity.yOffset;
+            
+            // Round positions to prevent sub-pixel rendering (causes blur)
+            const drawX = Math.round(entity.x);
+            const roundedDrawY = Math.round(drawY);
+            
+            // Draw the sprite frame with crisp rendering
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(
+                currentSprite,
+                sourceX, sourceY, frameWidth, frameHeight,
+                drawX, roundedDrawY, entity.width, entity.height
+            );
+        } else {
+            // Fallback to rectangle if sprite not ready
+            ctx.fillStyle = entity.color;
+            ctx.fillRect(entity.x, entity.y, entity.width, entity.height);
         }
     });
 }
