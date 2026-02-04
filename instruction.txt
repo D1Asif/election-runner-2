@@ -1,0 +1,324 @@
+GAME INSTRUCTION FILE
+Filename: instruction.txt
+
+Project: 2D Side-Scroller Runner Game
+Technology: HTML + Canvas + JavaScript
+Platform: Web (Mobile-first, Portrait)
+
+==================================================
+1. GAME OVERVIEW
+==================================================
+
+Build a 2D side-scrolling auto-runner game using HTML Canvas and JavaScript.
+
+The player runs automatically from left to right.
+The user can tap or click anywhere on the screen to make the player jump.
+The goal is to complete a total distance of exactly 501 meters.
+
+After reaching 501 meters, the player enters a room and the game ends with a static title "501".
+
+This is an MVP game focused on fast development, clarity, and performance.
+
+==================================================
+2. PLATFORM & ORIENTATION
+==================================================
+
+- Mobile-first web game
+- Portrait orientation by default
+- Desktop browsers must also be supported
+- Responsive canvas scaling is required
+- Canvas should adapt to different screen sizes
+
+==================================================
+3. TECHNOLOGY CONSTRAINTS (STRICT)
+==================================================
+
+- Use HTML, Canvas, and Vanilla JavaScript ONLY
+- No game engines allowed
+- Do NOT use Phaser
+- Do NOT use Three.js
+- Do NOT use external physics engines
+- Simple manual physics (gravity, jump) only
+- Target performance: 60 FPS
+
+==================================================
+4. VISUAL ENVIRONMENT
+==================================================
+
+Background:
+- The background must represent a Dhaka city street environment
+- Cartoon-style urban road/street view of Dhaka
+- Use a looping horizontal background image
+- Simple background scrolling is enough
+- Parallax is optional, not required
+
+Initial Start Screen:
+- Background: same city street or slightly faded version
+- Center text: "Tap to Start"
+  - Font: 'Fredoka One' or 'Comic Sans MS', white with black stroke
+  - Optional small bounce animation for attention
+- Optional: main player idle sprite displayed at center-bottom
+
+Color Palette:
+- Road: #444444 (dark gray)
+- Sidewalks: #CCCCCC (light gray)
+- Buildings: #FFD699 (light orange), #99CCFF (sky blue), #FF9999 (pink)
+- Windows & doors: #333333 (dark gray)
+- Hearts: Red #FF4C4C
+- Distance Text: White #FFFFFF with slight black shadow
+- End Title "501": Yellow #FFD700
+
+Font Sizes:
+- Distance / UI: 16–24px mobile, scalable
+- End Screen "501": 48–60px, centered
+- Buttons: Large enough for mobile tap, rounded corners 12px
+
+==================================================
+5. PLAYER CHARACTER & CONTROLS
+==================================================
+
+Player Character:
+- Sprites already exist in /src/assets/images
+- Cartoon-style Muslim male character wearing jobba with long beard
+
+Movement:
+- Auto-run at a fixed speed
+- Single jump only
+- Fixed gravity
+- Fixed jump height
+- No double jump
+
+Controls:
+- Mobile: tap anywhere to jump
+- Desktop: mouse click anywhere to jump
+
+Sprite Usage:
+- Sprites are provided as sprite sheets
+- File names include grid info, e.g., player_2x3.png (2 columns x 3 rows = 6 frames)
+- Animation must use the grid info to cycle frames correctly
+- Same logic applies to Police, Journalist, and Female Model sprites
+
+==================================================
+6. GAME ENTITIES
+==================================================
+
+There are exactly THREE types of entities besides the player.
+
+1. Police Character
+- Bangladesh-style police
+- Collision effect:
+  - Deduct 1 heart
+
+2. Journalist Character
+- Media figure represented as a journalist
+- Visual cues: microphone and/or camera
+- Collision effect:
+  - Deduct 1 heart
+
+3. Female Model / Actress
+- Cartoon-style female model or actress
+- Collision effect:
+  - Increase 1 heart (up to max)
+  - Show positive visual feedback such as "+1"
+
+==================================================
+7. HEARTS & HEALTH SYSTEM
+==================================================
+
+- Player starts with 3 hearts
+- Maximum hearts allowed: 3
+
+Collision Effects:
+- Police collision: -1 heart
+- Journalist collision: -1 heart
+- Female model/actress collision: +1 heart
+
+Notes:
+- No blink effect
+- No invincibility logic
+- Heart deduction happens instantly on collision
+
+==================================================
+8. DISTANCE SYSTEM
+==================================================
+
+- Distance increases automatically over time
+- Running speed is fixed
+- Total distance to complete: 501 meters
+
+UI:
+- Display distance as:
+  "XXX / 501 meters"
+- Update continuously during gameplay
+
+==================================================
+9. OBSTACLE SPAWN LOGIC
+==================================================
+
+- Entities spawn randomly
+- Maintain a minimum horizontal gap between spawns
+- Avoid impossible jump scenarios
+- Spawn logic should be simple and deterministic
+
+==================================================
+10. GAME OVER & RESTART LOGIC
+==================================================
+
+When hearts reach 0:
+- Game resets immediately
+- Distance resets to 0 meters
+- Hearts reset to 3
+- Player restarts from the beginning
+
+==================================================
+11. END GAME (501 ROOM)
+==================================================
+
+- When distance reaches exactly 501 meters:
+  - Player stops running
+  - Player automatically enters a room or door
+  - Camera stops moving
+- Display static title text:
+  "501"
+
+==================================================
+12. END SCREEN BUTTONS
+==================================================
+
+After completing the game, show two buttons:
+
+1. Restart Game
+- Fully resets the game state
+- Starts the game from the beginning
+
+2. Go Back to Website
+- Redirects to an external website
+- URL must be stored as a configurable constant
+
+==================================================
+13. GAME SCENES / STATES
+==================================================
+
+Use simple game states managed in JavaScript:
+
+1. Start State
+- Display text: "Tap to Start"
+- Optional idle player sprite at bottom-center
+- On tap or click, start the game
+
+2. Game State
+- Main gameplay loop
+- Auto-running player
+- Distance tracking
+- Collision handling
+- Background scrolling
+- Sprite sheet animation using grid info
+
+3. End State
+- Display "501"
+- Show Restart button
+- Show Website redirect button
+
+==================================================
+14. AUDIO (PLACEHOLDERS ONLY)
+==================================================
+
+- Use placeholder sound effects:
+  - Jump
+  - Negative collision
+  - Positive collision
+- No background music required
+- Audio assets can be dummy files
+
+==================================================
+15. ASSETS STRATEGY
+==================================================
+
+- Start with simple placeholder assets
+- All assets must be replaceable
+- Do not hardcode sprite sizes
+- Cartoon-style visuals preferred
+
+==================================================
+16. FOLDER STRUCTURE
+==================================================
+
+/src
+  /entities
+    Player.js
+    Police.js
+    Journalist.js
+    FemaleModel.js
+  /assets
+    /images
+      /backgrounds
+      player_*.png
+      police_*.png
+      journalist_*.png
+      female_*.png
+    /audio
+  game.js
+index.html
+
+==================================================
+17. CAMERA & WORLD RULES
+==================================================
+
+- Side-scrolling world
+- Player stays slightly left of center
+- World moves instead of the player
+- Background scrolls continuously
+
+==================================================
+18. PERFORMANCE CONSTRAINTS
+==================================================
+
+- Target 60 FPS
+- Lightweight sprites
+- Minimal logic inside main loop
+- Avoid unnecessary calculations
+
+==================================================
+19. DO / DON’T RULES
+==================================================
+
+DO:
+- Follow this instruction file strictly
+- Keep logic simple
+- Focus on playability and performance
+
+DO NOT:
+- Add extra features
+- Add monetization
+- Add authentication
+- Change gameplay rules
+- Introduce complex physics or engines
+
+==================================================
+20. SPRITE SHEET USAGE
+==================================================
+
+- Each sprite image comes with grid info in filename
+- Columns x Rows defines frames
+- Code editor must animate sprites by cycling through grid frames
+- Separate animation logic for Player, Police, Journalist, and Female Model
+- Avoid hardcoding frame size; calculate based on image width/height and grid
+
+==================================================
+21. BUILD ORDER (STRICT)
+==================================================
+
+1. Setup HTML + Canvas project
+2. Implement Start State with background and text "Tap to Start"
+3. Implement Game State
+4. Add player auto-run and jump
+5. Add distance system
+6. Add collisions and hearts logic
+7. Add positive collision feedback (+1)
+8. Implement End State
+9. Add restart and redirect buttons
+10. Test on mobile viewport
+
+==================================================
+END OF INSTRUCTION FILE
+==================================================
