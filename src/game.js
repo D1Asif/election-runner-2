@@ -182,7 +182,7 @@ function loadSounds() {
         }
     });
     
-    femaleInteractionSound.src = './src/assets/sounds/Female_interaction.m4a';
+    femaleInteractionSound.src = './src/assets/sounds/female_interaction.m4a';
     obstacleSound.src = './src/assets/sounds/obstacle.m4a';
     finalSound.src = './src/assets/sounds/final.m4a';
 }
