@@ -1,9 +1,9 @@
 // Game Constants
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 600;
-const GAME_SPEED = 5;
+const GAME_SPEED = 7;
 const GRAVITY = 0.8;
-const JUMP_FORCE = -20; // Increased from -15 for higher jumps
+const JUMP_FORCE = -23; // Increased from -15 for higher jumps
 const TARGET_DISTANCE = 501;
 
 // Game States
@@ -268,6 +268,23 @@ function startGame() {
     entities = [];
     lastSpawnTime = 0;
     collisionFeedback = [];
+
+    // 🔊 UNLOCK AUDIO (CRITICAL)
+    unlockAudio();
+}
+
+function unlockAudio() {
+    if (!soundsLoaded) return;
+
+    // Play and immediately pause each sound to unlock
+    [femaleInteractionSound, obstacleSound, finalSound].forEach(sound => {
+        sound.volume = 0;
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            sound.volume = 1;
+        }).catch(() => {});
+    });
 }
 
 function resetPlayer() {
