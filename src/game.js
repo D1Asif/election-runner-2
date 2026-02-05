@@ -82,8 +82,8 @@ function init() {
     canvas.addEventListener('touchstart', handleTouch);
 
     // Unlock audio instantly on first interaction (mobile fix)
-    document.addEventListener("touchstart", unlockAudio, { once: true });
-    document.addEventListener("click", unlockAudio, { once: true });
+    document.addEventListener('touchstart', unlockAudioOnce, { once: true });
+    document.addEventListener('click', unlockAudioOnce, { once: true });
 
     // Load sprites
     loadSprites();
@@ -276,29 +276,17 @@ function startGame() {
     collisionFeedback = [];
 }
 
-function unlockAudio() {
+function unlockAudioOnce() {
     if (audioUnlocked) return;
     audioUnlocked = true;
 
-    console.log("🔊 Audio unlocking...");
-
-    const sounds = [femaleInteractionSound, obstacleSound, finalSound];
-
-    sounds.forEach(sound => {
-        if (!sound) return;
-
-        try {
-            sound.volume = 0.001; // NOT zero (Safari bug)
-            const playPromise = sound.play();
-
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    sound.pause();
-                    sound.currentTime = 0;
-                    sound.volume = 1;
-                }).catch(() => { });
-            }
-        } catch (e) { }
+    [femaleInteractionSound, obstacleSound, finalSound].forEach(sound => {
+        sound.volume = 0.01;
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            sound.volume = 1;
+        }).catch(() => { });
     });
 }
 
