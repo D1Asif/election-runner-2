@@ -1068,7 +1068,7 @@ function drawStartScreen() {
     ctx.lineWidth = 3;
     ctx.font = 'bold 20px Comic Sans MS';
     ctx.textAlign = 'center';
-    ctx.fillText('পুলিশ ও সাংবাদিক এড়িয়ে চলুন • নারী সংগ্রহ করুন', CANVAS_WIDTH / 2, 380);
+    ctx.fillText('পুলিশ ও সাংবাদিক এড়িয়ে চলুন • নারী সংগ্রহ করুন • লাফ দিতে ট্যাপ করুন', CANVAS_WIDTH / 2, 380);
 
     // Draw "Tap to Start" button
     const buttonY = 450;
