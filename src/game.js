@@ -260,7 +260,7 @@ function handleEndScreenClick(eventData) {
     const websiteBtn = window.endScreenButtons.website;
     if (clickX >= websiteBtn.x && clickX <= websiteBtn.x + websiteBtn.width &&
         clickY >= websiteBtn.y && clickY <= websiteBtn.y + websiteBtn.height) {
-        window.open('https://google.com', '_blank');
+        window.open('https://resortmaulana.com/', '_blank');
         return;
     }
 }
@@ -353,8 +353,8 @@ function updatePlayerAnimation() {
 }
 
 function updateDistance() {
-    distance += player.speed / 60; // Convert to meters (assuming 60 FPS)
-    backgroundOffset += player.speed * 2; // Faster building scrolling
+    distance += player.speed / 30; // Increased from /60 to make distance go 2x faster
+    backgroundOffset += player.speed * 2; // Keep background scrolling at same rate
 
     // Spawn entities
     spawnEntities();
