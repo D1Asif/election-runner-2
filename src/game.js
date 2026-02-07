@@ -188,9 +188,9 @@ function loadSounds() {
         }
     });
 
-    femaleInteractionSound.src = './src/assets/sounds/female_interaction.m4a';
-    obstacleSound.src = './src/assets/sounds/obstacle.m4a';
-    finalSound.src = './src/assets/sounds/final.m4a';
+    femaleInteractionSound.src = './src/assets/sounds/female_interaction_clean.m4a';
+    obstacleSound.src = './src/assets/sounds/obstacle_clean.m4a';
+    finalSound.src = './src/assets/sounds/final_clean.m4a';
 }
 
 function resizeCanvas() {
